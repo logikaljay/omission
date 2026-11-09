@@ -1,0 +1,23 @@
+pkgname=omission
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Mission Control for Omarchy: every workspace and window, live, in one keystroke'
+arch=('x86_64' 'aarch64')
+license=('MIT')
+depends=('qt6-base' 'qt6-declarative' 'qt6-wayland' 'wayland' 'mesa' 'hyprland')
+makedepends=('gcc' 'make' 'wayland-protocols' 'pkgconf')
+source=()
+sha256sums=()
+
+build() {
+  cd "$startdir/.."
+  ./bin/build
+}
+
+package() {
+  cd "$startdir/.."
+  install -Dm755 build/omission "$pkgdir/usr/bin/omission"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 "$startdir/omission.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/omission.svg"
+  install -Dm644 "$startdir/omission.desktop" "$pkgdir/usr/share/applications/omission.desktop"
+}

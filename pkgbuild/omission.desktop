@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Name=Omission
+Comment=See every workspace and window at once
+Comment[da]=Se alle arbejdsområder og vinduer på én gang
+Comment[de]=Alle Arbeitsbereiche und Fenster auf einen Blick
+Comment[es_MX]=Ve todos los espacios y ventanas a la vez
+Comment[fr]=Voir tous les espaces et toutes les fenêtres d’un coup
+Comment[ja]=すべてのワークスペースとウィンドウを一度に表示
+Comment[pt_BR]=Veja todos os espaços e janelas de uma vez
+Exec=omission toggle
+Icon=omission
+Terminal=false
+Categories=Utility;
+Keywords=mission control;expose;overview;workspaces;windows;
+StartupWMClass=omission

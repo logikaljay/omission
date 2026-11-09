@@ -1,0 +1,239 @@
+#!/bin/sh
+# Adds or removes omission's Hyprland setup: a keybinding, the Mission
+# Control key (F3 on Apple keyboards), three-finger swipes (up opens, down
+# closes), and the daemon at login. Everything lives between
+# "-- omission: start" and "-- omission: end" markers in the user's own
+# files, so removing it never touches anything else.
+#
+#   bin/hypr-config add [--key "SUPER + D"] [--no-key] [--no-gesture] [--no-autostart] [--force]
+#     [--no-mission-key]  (--no-gesture leaves out both swipes)
+#   bin/hypr-config remove
+#
+# Each changed file is backed up beside itself (file.bak.<time>) first, and
+# if Hyprland reports config errors afterwards the backups are restored.
+set -eu
+
+HYPR="${OMISSION_HYPR_DIR:-$HOME/.config/hypr}"
+BINDINGS="$HYPR/bindings.lua"
+AUTOSTART="$HYPR/autostart.lua"
+DESCRIPTION="Mission control (omission)"
+STAMP="$(date +%s)"
+BACKUPS=""
+
+say() { printf '%s\n' "$*"; }
+die() { printf 'omission: %s\n' "$*" >&2; exit 1; }
+
+usage() {
+  sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+backup() {
+  [ -f "$1" ] || return 0
+  cp -p "$1" "$1.bak.$STAMP"
+  BACKUPS="$BACKUPS $1"
+}
+
+restore() {
+  for file in $BACKUPS; do
+    mv -f "$file.bak.$STAMP" "$file"
+  done
+}
+
+# Drops a previous omission block, so running add twice changes nothing.
+strip_block() {
+  [ -f "$1" ] || return 0
+  grep -q '^-- omission: start' "$1" || return 0
+  tmp="$1.omission.$$"
+  awk '/^-- omission: start/ { skip = 1; next } /^-- omission: end/ { skip = 0; next } !skip' "$1" > "$tmp"
+  # Collapse the blank line the block left behind at the end.
+  awk 'NF { for (; blank > 0; blank--) print ""; print; next } { blank++ }' "$tmp" > "$1.omission.trim.$$"
+  rm -f "$tmp"
+  cat "$1.omission.trim.$$" > "$1"
+  rm -f "$1.omission.trim.$$"
+}
+
+append_block() {
+  file="$1"
+  body="$2"
+  mkdir -p "$(dirname "$file")"
+  [ -f "$file" ] || : > "$file"
+  # Start on a fresh line, with one blank line before the block.
+  if [ -s "$file" ]; then
+    [ "$(tail -c 1 "$file" | od -An -c | tr -d ' ')" = '\n' ] || printf '\n' >> "$file"
+    printf '\n' >> "$file"
+  fi
+  printf -- '-- omission: start\n%s\n-- omission: end\n' "$body" >> "$file"
+}
+
+hyprland_running() {
+  [ -z "${OMISSION_NO_RELOAD:-}" ] && [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && command -v hyprctl >/dev/null 2>&1
+}
+
+# Reloads Hyprland and puts the backups back if the new config has errors.
+validate() {
+  hyprland_running || return 0
+  hyprctl reload >/dev/null
+  errors="$(hyprctl configerrors 2>/dev/null | grep -v '^[[:space:]]*$' || true)"
+  if [ -n "$errors" ]; then
+    restore
+    hyprctl reload >/dev/null
+    die "Hyprland reported config errors, so your files were restored:
+$errors"
+  fi
+}
+
+# "SUPER + SHIFT + D" -> "64 D", matching `hyprctl binds -j` (modmask, key).
+key_signature() {
+  mask=0
+  key=""
+  for part in $(printf '%s' "$1" | tr '+' ' '); do
+    case "$(printf '%s' "$part" | tr '[:lower:]' '[:upper:]')" in
+      SHIFT) mask=$((mask + 1)) ;;
+      CAPS) mask=$((mask + 2)) ;;
+      CTRL|CONTROL) mask=$((mask + 4)) ;;
+      ALT) mask=$((mask + 8)) ;;
+      SUPER|WIN|LOGO|MOD4) mask=$((mask + 64)) ;;
+      *) key="$part" ;;
+    esac
+  done
+  [ -n "$key" ] || die "no key in \"$1\""
+  printf '%s %s' "$mask" "$(printf '%s' "$key" | tr '[:lower:]' '[:upper:]')"
+}
+
+# What the key is bound to now, other than omission itself; empty if free.
+key_taken_by() {
+  [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && command -v hyprctl >/dev/null 2>&1 || return 0
+  command -v jq >/dev/null 2>&1 || return 0
+  set -- $(key_signature "$1")
+  hyprctl binds -j | jq -r --argjson mask "$1" --arg key "$2" --arg mine "$DESCRIPTION" '
+    .[] | select(.modmask == $mask and (.key | ascii_upcase) == $key and .description != $mine)
+        | (.description // "") + (if (.description // "") == "" then .dispatcher + " " + .arg else "" end)' | head -n 1
+}
+
+# A three-finger swipe in this direction ("up" or "down"), or a vertical
+# one, set anywhere else.
+gesture_taken() {
+  for dir in "$HYPR" "${OMARCHY_PATH:-/usr/share/omarchy}/default/hypr"; do
+    [ -d "$dir" ] || continue
+    grep -rhE --include='*.lua' "gesture\\(\\{[^}]*fingers *= *3[^}]*direction *= *\"($1|vertical)\"" "$dir" 2>/dev/null \
+      | grep -vE '^[[:space:]]*--' | grep -v 'omission' && return 0
+  done
+  return 1
+}
+
+add() {
+  key="SUPER + D"
+  want_key=1 want_mission=1 want_gesture=1 want_autostart=1 force=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --key) [ $# -ge 2 ] || die "--key needs a value"; key="$2"; shift ;;
+      --key=*) key="${1#--key=}" ;;
+      --no-key) want_key=0 ;;
+      --no-mission-key) want_mission=0 ;;
+      --no-gesture) want_gesture=0 ;;
+      --no-autostart) want_autostart=0 ;;
+      --force) force=1 ;;
+      -h|--help) usage; exit 0 ;;
+      *) die "unknown option $1" ;;
+    esac
+    shift
+  done
+
+  bind_with="o.bind"
+  if [ "$want_key" = 1 ]; then
+    taken="$(key_taken_by "$key")"
+    if [ -n "$taken" ]; then
+      [ "$force" = 1 ] || die "$key is already bound to \"$taken\". Pick another with --key, or pass --force to replace it."
+      bind_with="o.rebind"
+      say "Replacing $key (was: $taken)."
+    fi
+  fi
+  # Apple's Mission Control key (F3's media function) arrives as KEY_SCALE,
+  # which XKB calls XF86LaunchA. Keyboards without it never send it, so the
+  # binding is harmless there; it's skipped only if something else owns it.
+  if [ "$want_mission" = 1 ]; then
+    taken="$(key_taken_by "XF86LaunchA")"
+    if [ -n "$taken" ]; then
+      say "The Mission Control key (XF86LaunchA) is already bound to \"$taken\"; leaving it alone."
+      want_mission=0
+    fi
+  fi
+  want_close_gesture=$want_gesture
+  if [ "$want_gesture" = 1 ] && gesture_taken up >/dev/null; then
+    say "A three-finger swipe up is already configured; skipping the open gesture."
+    want_gesture=0
+  fi
+  if [ "$want_close_gesture" = 1 ] && gesture_taken down >/dev/null; then
+    say "A three-finger swipe down is already configured; skipping the close gesture."
+    want_close_gesture=0
+  fi
+
+  backup "$BINDINGS"
+  backup "$AUTOSTART"
+  strip_block "$BINDINGS"
+  strip_block "$AUTOSTART"
+
+  body=""
+  if [ "$want_key" = 1 ]; then
+    body="-- Show every workspace and window.
+$bind_with(\"$key\", \"$DESCRIPTION\", \"omission toggle\")"
+  fi
+  if [ "$want_mission" = 1 ]; then
+    [ -n "$body" ] && body="$body
+"
+    body="$body-- The Mission Control key (F3 on Apple keyboards).
+o.bind(\"XF86LaunchA\", \"$DESCRIPTION\", \"omission toggle\")"
+  fi
+  if [ "$want_gesture" = 1 ]; then
+    [ -n "$body" ] && body="$body
+"
+    body="$body-- Three-finger swipe up opens it too, like Mission Control on a Mac.
+hl.gesture({ fingers = 3, direction = \"up\", action = function() hl.exec_cmd(\"omission show\") end })"
+  fi
+  if [ "$want_close_gesture" = 1 ]; then
+    [ -n "$body" ] && body="$body
+"
+    body="$body-- Three-finger swipe down closes it (and does nothing when it's closed).
+hl.gesture({ fingers = 3, direction = \"down\", action = function() hl.exec_cmd(\"omission hide\") end })"
+  fi
+  [ -n "$body" ] && append_block "$BINDINGS" "$body"
+
+  if [ "$want_autostart" = 1 ]; then
+    append_block "$AUTOSTART" "-- Keep omission resident so it opens instantly.
+o.launch_on_start(\"omission daemon\")"
+  fi
+
+  validate
+  [ "$want_key" = 1 ] && say "Bound $key to omission."
+  [ "$want_mission" = 1 ] && say "Bound the Mission Control key (XF86LaunchA) to omission."
+  [ "$want_gesture" = 1 ] && say "Added a three-finger swipe up to open."
+  [ "$want_close_gesture" = 1 ] && say "Added a three-finger swipe down to close."
+  [ "$want_autostart" = 1 ] && say "omission now starts with Hyprland."
+  [ -n "$BACKUPS" ] && say "Backups:$(for f in $BACKUPS; do printf ' %s' "$f.bak.$STAMP"; done)"
+  return 0
+}
+
+remove() {
+  changed=0
+  for file in "$BINDINGS" "$AUTOSTART"; do
+    if [ -f "$file" ] && grep -q '^-- omission: start' "$file"; then
+      backup "$file"
+      strip_block "$file"
+      changed=1
+    fi
+  done
+  if [ "$changed" = 0 ]; then
+    say "No omission setup found in $HYPR."
+    return 0
+  fi
+  validate
+  say "Removed omission's keybinding, gesture, and autostart."
+  say "Backups:$(for f in $BACKUPS; do printf ' %s' "$f.bak.$STAMP"; done)"
+}
+
+case "${1:-}" in
+  add) shift; add "$@" ;;
+  remove) shift; remove ;;
+  -h|--help|"") usage ;;
+  *) die "unknown command $1 (use add or remove)" ;;
+esac

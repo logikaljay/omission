@@ -1,0 +1,33 @@
+{
+  "Bring the selected window to this workspace": "Flyt det valgte vindue til dette arbejdsområde",
+  "Clear the search, or close the overview": "Ryd søgningen, eller luk oversigten",
+  "Close a window": "Luk et vindue",
+  "Close the selected window": "Luk det valgte vindue",
+  "Drag": "Træk",
+  "Empty": "Tomt",
+  "Find windows by title or app": "Find vinduer efter titel eller app",
+  "Go to that workspace": "Gå til det arbejdsområde",
+  "Go to the selected window": "Gå til det valgte vindue",
+  "Middle click": "Midterklik",
+  "Move a window to another workspace, or to a new one": "Flyt et vindue til et andet arbejdsområde eller et nyt",
+  "Move to workspace %1": "Flyt til arbejdsområde %1",
+  "+  New workspace": "+  Nyt arbejdsområde",
+  "%n matches": {
+    "one": "%n match",
+    "other": "%n match"
+  },
+  "%n windows": {
+    "one": "%n vindue",
+    "other": "%n vinduer"
+  },
+  "Select the nearest window that way": "Vælg det nærmeste vindue i den retning",
+  "Select the next window": "Vælg det næste vindue",
+  "Shortcuts": "Genveje",
+  "Show or hide this help": "Vis eller skjul denne hjælp",
+  "Type": "Skriv",
+  "Type to find a window  ·  ↵ go  ·  ⇧↵ bring here  ·  drag to move  ·  ? help": "Skriv for at finde et vindue  ·  ↵ gå  ·  ⇧↵ hent hertil  ·  træk for at flytte  ·  ? hjælp",
+  "Can't connect to the Wayland display, so windows can't be previewed.": "Kan ikke forbinde til Wayland-skærmen, så vinduer kan ikke vises.",
+  "Hyprland isn't running, so there are no workspaces to show.": "Hyprland kører ikke, så der er ingen arbejdsområder at vise.",
+  "Lost the Wayland connection used for previews.": "Mistede Wayland-forbindelsen til forhåndsvisninger.",
+  "This compositor doesn't offer ext-image-copy-capture, so windows can't be previewed.": "Denne compositor tilbyder ikke ext-image-copy-capture, så vinduer kan ikke vises."
+}

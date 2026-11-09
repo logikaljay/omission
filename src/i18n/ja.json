@@ -1,0 +1,31 @@
+{
+  "Bring the selected window to this workspace": "選択したウィンドウをこのワークスペースに移動",
+  "Clear the search, or close the overview": "検索をクリア、またはオーバービューを閉じる",
+  "Close a window": "ウィンドウを閉じる",
+  "Close the selected window": "選択したウィンドウを閉じる",
+  "Drag": "ドラッグ",
+  "Empty": "空",
+  "Find windows by title or app": "タイトルやアプリでウィンドウを検索",
+  "Go to that workspace": "そのワークスペースへ移動",
+  "Go to the selected window": "選択したウィンドウへ移動",
+  "Middle click": "中クリック",
+  "Move a window to another workspace, or to a new one": "ウィンドウを別のワークスペースや新しいワークスペースへ移動",
+  "Move to workspace %1": "ワークスペース %1 へ移動",
+  "+  New workspace": "+  新しいワークスペース",
+  "%n matches": {
+    "other": "%n 件"
+  },
+  "%n windows": {
+    "other": "%n 個のウィンドウ"
+  },
+  "Select the nearest window that way": "その方向で最も近いウィンドウを選択",
+  "Select the next window": "次のウィンドウを選択",
+  "Shortcuts": "ショートカット",
+  "Show or hide this help": "このヘルプの表示を切り替え",
+  "Type": "入力",
+  "Type to find a window  ·  ↵ go  ·  ⇧↵ bring here  ·  drag to move  ·  ? help": "入力してウィンドウを検索  ·  ↵ 移動  ·  ⇧↵ ここへ呼ぶ  ·  ドラッグで移動  ·  ? ヘルプ",
+  "Can't connect to the Wayland display, so windows can't be previewed.": "Wayland ディスプレイに接続できないため、ウィンドウをプレビューできません。",
+  "Hyprland isn't running, so there are no workspaces to show.": "Hyprland が動作していないため、表示するワークスペースがありません。",
+  "Lost the Wayland connection used for previews.": "プレビュー用の Wayland 接続が切れました。",
+  "This compositor doesn't offer ext-image-copy-capture, so windows can't be previewed.": "このコンポジターは ext-image-copy-capture に対応していないため、ウィンドウをプレビューできません。"
+}

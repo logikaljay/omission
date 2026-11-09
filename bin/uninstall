@@ -1,0 +1,29 @@
+#!/bin/sh
+# Stops omission, removes its keybinding, gesture, and autostart from your
+# Hyprland config, and uninstalls the package.
+#
+#   bin/uninstall                 everything
+#   bin/uninstall --keep-package  only undo the Hyprland setup
+set -eu
+
+ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+
+keep_package=0
+for arg in "$@"; do
+  case "$arg" in
+    --keep-package) keep_package=1 ;;
+    -h|--help) sed -n '2,6p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *) echo "omission: unknown option $arg" >&2; exit 1 ;;
+  esac
+done
+
+if command -v omission >/dev/null 2>&1; then
+  omission quit 2>/dev/null || true
+fi
+
+"$ROOT/bin/hypr-config" remove
+
+if [ "$keep_package" = 0 ] && pacman -Q omission >/dev/null 2>&1; then
+  sudo pacman -Rns --noconfirm omission
+  echo "Uninstalled the omission package."
+fi

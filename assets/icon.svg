@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#c026d3"/>
-  <text x="32" y="32" dy="0.35em" text-anchor="middle" font-family="ui-sans-serif, system-ui, -apple-system, sans-serif" font-size="32" font-weight="600" fill="#ffffff">O</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="14" fill="#FFD60A"/>
+  <rect x="9" y="12" width="21" height="15" rx="2" fill="#141418"/>
+  <rect x="34" y="12" width="21" height="15" rx="2" fill="#141418" opacity="0.55"/>
+  <rect x="9" y="31" width="21" height="15" rx="2" fill="#141418" opacity="0.55"/>
+  <rect x="34" y="31" width="21" height="15" rx="2" fill="#141418" opacity="0.55"/>
+  <rect x="22" y="51" width="20" height="3" rx="1.5" fill="#141418"/>
 </svg>

@@ -1,0 +1,35 @@
+{
+  "Bring the selected window to this workspace": "Amener la fenêtre sélectionnée dans cet espace",
+  "Clear the search, or close the overview": "Effacer la recherche ou fermer la vue d’ensemble",
+  "Close a window": "Fermer une fenêtre",
+  "Close the selected window": "Fermer la fenêtre sélectionnée",
+  "Drag": "Glisser",
+  "Empty": "Vide",
+  "Find windows by title or app": "Trouver des fenêtres par titre ou application",
+  "Go to that workspace": "Aller à cet espace de travail",
+  "Go to the selected window": "Aller à la fenêtre sélectionnée",
+  "Middle click": "Clic du milieu",
+  "Move a window to another workspace, or to a new one": "Déplacer une fenêtre vers un autre espace ou un nouveau",
+  "Move to workspace %1": "Déplacer vers l’espace %1",
+  "+  New workspace": "+  Nouvel espace",
+  "%n matches": {
+    "one": "%n résultat",
+    "many": "%n résultats",
+    "other": "%n résultats"
+  },
+  "%n windows": {
+    "one": "%n fenêtre",
+    "many": "%n fenêtres",
+    "other": "%n fenêtres"
+  },
+  "Select the nearest window that way": "Sélectionner la fenêtre la plus proche dans cette direction",
+  "Select the next window": "Sélectionner la fenêtre suivante",
+  "Shortcuts": "Raccourcis",
+  "Show or hide this help": "Afficher ou masquer cette aide",
+  "Type": "Taper",
+  "Type to find a window  ·  ↵ go  ·  ⇧↵ bring here  ·  drag to move  ·  ? help": "Tapez pour trouver une fenêtre  ·  ↵ aller  ·  ⇧↵ amener ici  ·  glisser pour déplacer  ·  ? aide",
+  "Can't connect to the Wayland display, so windows can't be previewed.": "Impossible de se connecter à l’affichage Wayland : pas d’aperçu des fenêtres.",
+  "Hyprland isn't running, so there are no workspaces to show.": "Hyprland ne tourne pas : aucun espace à afficher.",
+  "Lost the Wayland connection used for previews.": "Connexion Wayland des aperçus perdue.",
+  "This compositor doesn't offer ext-image-copy-capture, so windows can't be previewed.": "Ce compositeur n’offre pas ext-image-copy-capture : pas d’aperçu des fenêtres."
+}

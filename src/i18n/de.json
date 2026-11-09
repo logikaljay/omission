@@ -1,0 +1,33 @@
+{
+  "Bring the selected window to this workspace": "Ausgewähltes Fenster in diesen Arbeitsbereich holen",
+  "Clear the search, or close the overview": "Suche leeren oder Übersicht schließen",
+  "Close a window": "Ein Fenster schließen",
+  "Close the selected window": "Ausgewähltes Fenster schließen",
+  "Drag": "Ziehen",
+  "Empty": "Leer",
+  "Find windows by title or app": "Fenster nach Titel oder App finden",
+  "Go to that workspace": "Zu diesem Arbeitsbereich wechseln",
+  "Go to the selected window": "Zum ausgewählten Fenster wechseln",
+  "Middle click": "Mittelklick",
+  "Move a window to another workspace, or to a new one": "Ein Fenster in einen anderen oder neuen Arbeitsbereich verschieben",
+  "Move to workspace %1": "In Arbeitsbereich %1 verschieben",
+  "+  New workspace": "+  Neuer Arbeitsbereich",
+  "%n matches": {
+    "one": "%n Treffer",
+    "other": "%n Treffer"
+  },
+  "%n windows": {
+    "one": "%n Fenster",
+    "other": "%n Fenster"
+  },
+  "Select the nearest window that way": "Nächstes Fenster in dieser Richtung wählen",
+  "Select the next window": "Nächstes Fenster wählen",
+  "Shortcuts": "Tastenkürzel",
+  "Show or hide this help": "Diese Hilfe ein- oder ausblenden",
+  "Type": "Tippen",
+  "Type to find a window  ·  ↵ go  ·  ⇧↵ bring here  ·  drag to move  ·  ? help": "Tippen, um ein Fenster zu finden  ·  ↵ öffnen  ·  ⇧↵ herholen  ·  ziehen zum Verschieben  ·  ? Hilfe",
+  "Can't connect to the Wayland display, so windows can't be previewed.": "Keine Verbindung zum Wayland-Display, daher keine Fenstervorschau.",
+  "Hyprland isn't running, so there are no workspaces to show.": "Hyprland läuft nicht, daher gibt es keine Arbeitsbereiche.",
+  "Lost the Wayland connection used for previews.": "Die Wayland-Verbindung für Vorschauen ist abgebrochen.",
+  "This compositor doesn't offer ext-image-copy-capture, so windows can't be previewed.": "Dieser Compositor bietet kein ext-image-copy-capture, daher keine Fenstervorschau."
+}

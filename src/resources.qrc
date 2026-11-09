@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="Main.qml">Main.qml</file>
+        <file alias="WorkspaceCard.qml">WorkspaceCard.qml</file>
+        <file alias="WindowTile.qml">WindowTile.qml</file>
+        <file alias="NewWorkspaceCard.qml">NewWorkspaceCard.qml</file>
+        <file alias="SearchBar.qml">SearchBar.qml</file>
+        <file alias="HelpOverlay.qml">HelpOverlay.qml</file>
+        <file alias="i18n/da.json">i18n/da.json</file>
+        <file alias="i18n/de.json">i18n/de.json</file>
+        <file alias="i18n/en.json">i18n/en.json</file>
+        <file alias="i18n/es-MX.json">i18n/es-MX.json</file>
+        <file alias="i18n/fr.json">i18n/fr.json</file>
+        <file alias="i18n/ja.json">i18n/ja.json</file>
+        <file alias="i18n/pt-BR.json">i18n/pt-BR.json</file>
+    </qresource>
+</RCC>

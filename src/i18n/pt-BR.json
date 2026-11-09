@@ -1,0 +1,35 @@
+{
+  "Bring the selected window to this workspace": "Trazer a janela selecionada para este espaço",
+  "Clear the search, or close the overview": "Limpar a busca ou fechar a visão geral",
+  "Close a window": "Fechar uma janela",
+  "Close the selected window": "Fechar a janela selecionada",
+  "Drag": "Arrastar",
+  "Empty": "Vazio",
+  "Find windows by title or app": "Encontrar janelas por título ou app",
+  "Go to that workspace": "Ir para esse espaço de trabalho",
+  "Go to the selected window": "Ir para a janela selecionada",
+  "Middle click": "Clique do meio",
+  "Move a window to another workspace, or to a new one": "Mover uma janela para outro espaço ou para um novo",
+  "Move to workspace %1": "Mover para o espaço %1",
+  "+  New workspace": "+  Novo espaço",
+  "%n matches": {
+    "one": "%n resultado",
+    "many": "%n resultados",
+    "other": "%n resultados"
+  },
+  "%n windows": {
+    "one": "%n janela",
+    "many": "%n janelas",
+    "other": "%n janelas"
+  },
+  "Select the nearest window that way": "Selecionar a janela mais próxima nessa direção",
+  "Select the next window": "Selecionar a próxima janela",
+  "Shortcuts": "Atalhos",
+  "Show or hide this help": "Mostrar ou ocultar esta ajuda",
+  "Type": "Digitar",
+  "Type to find a window  ·  ↵ go  ·  ⇧↵ bring here  ·  drag to move  ·  ? help": "Digite para encontrar uma janela  ·  ↵ ir  ·  ⇧↵ trazer aqui  ·  arraste para mover  ·  ? ajuda",
+  "Can't connect to the Wayland display, so windows can't be previewed.": "Não foi possível conectar à tela Wayland; sem prévias das janelas.",
+  "Hyprland isn't running, so there are no workspaces to show.": "O Hyprland não está rodando; não há espaços para mostrar.",
+  "Lost the Wayland connection used for previews.": "A conexão Wayland das prévias foi perdida.",
+  "This compositor doesn't offer ext-image-copy-capture, so windows can't be previewed.": "Este compositor não oferece ext-image-copy-capture; sem prévias das janelas."
+}

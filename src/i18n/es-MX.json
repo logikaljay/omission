@@ -1,0 +1,35 @@
+{
+  "Bring the selected window to this workspace": "Traer la ventana seleccionada a este espacio",
+  "Clear the search, or close the overview": "Borrar la búsqueda o cerrar la vista general",
+  "Close a window": "Cerrar una ventana",
+  "Close the selected window": "Cerrar la ventana seleccionada",
+  "Drag": "Arrastrar",
+  "Empty": "Vacío",
+  "Find windows by title or app": "Buscar ventanas por título o app",
+  "Go to that workspace": "Ir a ese espacio de trabajo",
+  "Go to the selected window": "Ir a la ventana seleccionada",
+  "Middle click": "Clic central",
+  "Move a window to another workspace, or to a new one": "Mover una ventana a otro espacio o a uno nuevo",
+  "Move to workspace %1": "Mover al espacio %1",
+  "+  New workspace": "+  Nuevo espacio",
+  "%n matches": {
+    "one": "%n coincidencia",
+    "many": "%n coincidencias",
+    "other": "%n coincidencias"
+  },
+  "%n windows": {
+    "one": "%n ventana",
+    "many": "%n ventanas",
+    "other": "%n ventanas"
+  },
+  "Select the nearest window that way": "Seleccionar la ventana más cercana en esa dirección",
+  "Select the next window": "Seleccionar la siguiente ventana",
+  "Shortcuts": "Atajos",
+  "Show or hide this help": "Mostrar u ocultar esta ayuda",
+  "Type": "Escribir",
+  "Type to find a window  ·  ↵ go  ·  ⇧↵ bring here  ·  drag to move  ·  ? help": "Escribe para buscar una ventana  ·  ↵ ir  ·  ⇧↵ traer aquí  ·  arrastra para mover  ·  ? ayuda",
+  "Can't connect to the Wayland display, so windows can't be previewed.": "No se puede conectar a la pantalla Wayland; no hay vistas previas de ventanas.",
+  "Hyprland isn't running, so there are no workspaces to show.": "Hyprland no se está ejecutando; no hay espacios que mostrar.",
+  "Lost the Wayland connection used for previews.": "Se perdió la conexión Wayland de las vistas previas.",
+  "This compositor doesn't offer ext-image-copy-capture, so windows can't be previewed.": "Este compositor no ofrece ext-image-copy-capture; no hay vistas previas de ventanas."
+}
