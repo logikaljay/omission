@@ -1,0 +1,89 @@
+name: Build
+
+# Builds omission for linux-amd64 and linux-arm64 on every push and pull
+# request. A v* tag also publishes a release with both binaries and their
+# SHA256SUMS, which is what install.sh downloads.
+on:
+  push:
+    branches: [master, main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: linux-${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    # Ubuntu 26.04 has the ext-image-copy-capture protocols (wayland-protocols
+    # 1.47) and Qt 6.10; Qt's binary compatibility lets the result run on the
+    # newer Qt that Arch and Omarchy ship.
+    container: ubuntu:26.04
+    steps:
+      - name: Install build dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends \
+            ca-certificates g++ make pkgconf qmake6 \
+            qt6-base-dev qt6-declarative-dev qt6-qpa-plugins \
+            libwayland-dev wayland-protocols libgbm-dev libegl-dev libgl-dev
+
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: ./bin/build
+
+      - name: Test
+        run: ./bin/test
+
+      - name: Package
+        run: |
+          mkdir -p dist
+          strip -o dist/omission-linux-${{ matrix.arch }} build/omission
+          dist/omission-linux-${{ matrix.arch }} --help >/dev/null
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: omission-linux-${{ matrix.arch }}
+          path: dist/omission-linux-${{ matrix.arch }}
+          if-no-files-found: error
+
+  release:
+    name: Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        run: |
+          chmod +x dist/omission-linux-*
+          cd dist && sha256sum omission-linux-amd64 omission-linux-arm64 > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "omission $GITHUB_REF_NAME" \
+            --generate-notes

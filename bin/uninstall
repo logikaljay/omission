@@ -1,6 +1,6 @@
 #!/bin/sh
-# Stops omission, removes its keybinding, gesture, and autostart from your
-# Hyprland config, and uninstalls the package.
+# Stops omission, removes its Hyprland setup (via install.sh --uninstall),
+# and removes the package bin/install made.
 #
 #   bin/uninstall                 everything
 #   bin/uninstall --keep-package  only undo the Hyprland setup
@@ -17,11 +17,7 @@ for arg in "$@"; do
   esac
 done
 
-if command -v omission >/dev/null 2>&1; then
-  omission quit 2>/dev/null || true
-fi
-
-"$ROOT/bin/hypr-config" remove
+"$ROOT/install.sh" --binary /usr/bin/omission --uninstall
 
 if [ "$keep_package" = 0 ] && pacman -Q omission >/dev/null 2>&1; then
   sudo pacman -Rns --noconfirm omission

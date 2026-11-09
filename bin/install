@@ -1,42 +1,12 @@
 #!/bin/sh
-# Builds and installs omission as a package, wires it into Hyprland (a
-# keybinding, a three-finger swipe up, and autostart), and starts it.
-#
-#   bin/install                     SUPER + D, swipe, autostart
-#   bin/install --key "SUPER + O"   another key
-#   bin/install --force             replace whatever the key does now
-#   bin/install --no-key | --no-gesture | --no-autostart
-#   bin/install --no-config         only build and install the package
+# Builds omission from source, installs it as an Arch package (so it lands
+# in the app launcher), then runs install.sh against that binary to set up
+# Hyprland and start it. Options go to install.sh: --yes, --no-hotkeys,
+# --no-gestures, --no-autostart.
 set -eu
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 
-configure=1
-for arg in "$@"; do
-  case "$arg" in
-    --no-config) configure=0 ;;
-    -h|--help) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
-  esac
-done
-
-# Everything but --no-config goes on to bin/hypr-config.
-for arg do
-  shift
-  [ "$arg" = --no-config ] || set -- "$@" "$arg"
-done
-
 "$ROOT/bin/build"
 (cd "$ROOT/pkgbuild" && makepkg -fsi --noconfirm)
-
-if [ "$configure" = 1 ]; then
-  "$ROOT/bin/hypr-config" add "$@"
-fi
-
-# Restart the daemon so the freshly installed binary is the one running,
-# started through Hyprland exactly as autostart will.
-if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-  omission quit 2>/dev/null || true
-  sleep 0.3
-  hyprctl dispatch 'hl.dsp.exec_cmd("uwsm-app -- omission daemon")' >/dev/null
-  echo "omission is running. Press your key, or swipe up with three fingers."
-fi
+exec "$ROOT/install.sh" --binary /usr/bin/omission "$@"
