@@ -7,11 +7,26 @@
 #include <QQuickWindow>
 #include <QScreen>
 #include <QUrl>
+#include <QtGui/qguiapplication_platform.h>
+
+#include <wayland-client.h>
 
 #include "capturer.h"
 #include "hyprland.h"
 #include "theme.h"
 #include "thumbnails.h"
+
+// Waits until the compositor has handled every request sent so far. Qt reads
+// and dispatches its own events on its queues; this uses a private one.
+static void syncWithCompositor() {
+    auto *app = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
+    wl_display *display = app ? app->display() : nullptr;
+    if (!display)
+        return;
+    wl_event_queue *queue = wl_display_create_queue(display);
+    wl_display_roundtrip_queue(display, queue);
+    wl_event_queue_destroy(queue);
+}
 
 Backend::Backend(Hyprland *hyprland, Capturer *capturer, Theme *theme, QObject *parent)
     : QObject(parent), m_hyprland(hyprland), m_capturer(capturer), m_theme(theme) {
@@ -320,8 +335,13 @@ void Backend::finishClose() {
     m_trickle.clear();
     m_trickleTimer.stop();
     m_presentTimer.stop();
-    if (m_window)
+    if (m_window) {
         m_window->hide();
+        // The overview is a full-screen window. Until Hyprland has unmapped
+        // it, focusing a window on this workspace makes that window take
+        // over full screen (misc:on_focus_under_fullscreen = 1).
+        syncWithCompositor();
+    }
     for (auto it = m_restoreFullscreen.begin(); it != m_restoreFullscreen.end(); ++it)
         m_hyprland->dispatch(QString("hl.dsp.window.fullscreen({ mode = %1, action = \"set\", window = %2 })")
                                  .arg(Hyprland::quote(it.value() == 1 ? "maximized" : "fullscreen"),

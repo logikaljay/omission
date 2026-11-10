@@ -362,9 +362,8 @@ void Capturer::onSessionDone(void *data, ext_image_copy_capture_session_v1 *) {
     if (t->format == UINT32_MAX)
         TRACE("omission: %s offers no 32-bit shared-memory format", qPrintable(t->id));
     t->constraintsKnown = true;
-    // The window was resized: the buffer no longer fits.
-    if (t->buffer && (t->buffer->width != t->width || t->buffer->height != t->height))
-        t->buffer.reset();
+    // A resized window needs a new buffer, but a frame may still be copying
+    // into the old one; startFrame swaps it once that frame is done.
     t->owner->startFrame(t);
 }
 
@@ -392,6 +391,9 @@ void Capturer::startFrame(Toplevel *t) {
         return;
     }
 
+    // The window was resized: the buffer no longer fits.
+    if (t->buffer && (t->buffer->width != t->width || t->buffer->height != t->height))
+        t->buffer.reset();
     if (!t->buffer)
         t->buffer = (m_gbm && m_dmabuf && t->dmabufFormat) ? allocateDmabuf(t) : nullptr;
     if (!t->buffer && t->format != UINT32_MAX)
@@ -505,6 +507,10 @@ void Capturer::onFailed(void *data, ext_image_copy_capture_frame_v1 *frame, uint
 
 void Capturer::finishFrame(Toplevel *t) {
     t->lastCapture = m_clock.elapsed();
+    if (!t->buffer) {
+        startFrame(t);
+        return;
+    }
     if (t->buffer->dmabuf) {
         // Nothing to do on the CPU: the buffer itself goes to the render
         // thread, which imports and shrinks it on the GPU. The next capture
