@@ -120,7 +120,10 @@ Item {
 
     // Close, top-left like the traffic lights it borrows from.
     Rectangle {
-        visible: mouse.containsMouse && tile.t === 1 && overview.dragAddress === "" && tile.width > 60
+        // The button's own hover counts too: it takes the hover from the tile
+        // underneath, and without it the button would hide, hand the hover
+        // back, show again, and flicker.
+        visible: (mouse.containsMouse || closeArea.containsMouse) && tile.t === 1 && overview.dragAddress === "" && tile.width > 60
         x: -width / 3
         y: -height / 3
         width: 22
