@@ -13,6 +13,7 @@
 #include "backend.h"
 #include "capturer.h"
 #include "hyprland.h"
+#include "shortcuts.h"
 #include "theme.h"
 #include "thumbnails.h"
 #include "translator.h"
@@ -114,6 +115,13 @@ int main(int argc, char *argv[]) {
             });
         }
     });
+
+    // Keys bound to Hyprland's global shortcuts ("omission:toggle") arrive
+    // here without a process being started for them.
+    Shortcuts shortcuts;
+    QObject::connect(&shortcuts, &Shortcuts::toggle, &backend, &Backend::toggle);
+    QObject::connect(&shortcuts, &Shortcuts::show, &backend, &Backend::show);
+    QObject::connect(&shortcuts, &Shortcuts::hide, &backend, &Backend::close);
 
     qRegisterMetaType<std::shared_ptr<CaptureBuffer>>();
     qmlRegisterType<WindowThumb>("Omission", 1, 0, "WindowThumb");

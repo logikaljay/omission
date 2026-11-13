@@ -76,6 +76,7 @@ private:
     void trickle();
     void present();
     void placeOnFocusedMonitor();
+    void setAnimated(const QStringList &addresses, bool animated);
     void applyWindowRule();
     void prewarm(const QList<int> &workspaces);
     void reloadWallpaper();
@@ -101,9 +102,12 @@ private:
     QTimer m_presentTimer;
     bool m_presented = false;
     QHash<QString, int> m_restoreFullscreen;
+    // Windows under the overview, whose animations are off while it's open.
+    QStringList m_stilled;
     QTimer m_trickleTimer;
     QStringList m_trickle;
     QSet<int> m_leftWorkspaces;
     QElapsedTimer m_openClock;
+    QStringList m_frameProgress;
     QList<qint64> m_frameTimes; // written from the render thread while open
 };

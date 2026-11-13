@@ -197,6 +197,20 @@ configure_hyprland() {
   add_line() { lines="${lines:+$lines
 }$1"; }
 
+  # A key or swipe reaches the running omission as one of Hyprland's global
+  # shortcuts, with no process started for it. Without autostart nothing may
+  # be running to hear that, so the key runs omission instead (which takes
+  # about 25 ms longer every time).
+  if [ "$autostart" = yes ]; then
+    toggle='hl.dsp.global("omission:toggle")'
+    show='hl.dispatch(hl.dsp.global("omission:show"))'
+    hide='hl.dispatch(hl.dsp.global("omission:hide"))'
+  else
+    toggle="\"$BIN toggle\""
+    show="hl.exec_cmd(\"$BIN show\")"
+    hide="hl.exec_cmd(\"$BIN hide\")"
+  fi
+
   if [ "$hotkeys" = yes ]; then
     # Apple's Mission Control key arrives as KEY_SCALE, which XKB calls
     # XF86LaunchA. Keyboards without it never send it.
@@ -205,14 +219,14 @@ configure_hyprland() {
       say "The Mission Control key is already bound to \"$taken\"; leaving it alone."
     else
       add_line "-- The Mission Control key (F3 on Apple keyboards)."
-      add_line "o.bind(\"XF86LaunchA\", \"$DESCRIPTION\", \"$BIN toggle\")"
+      add_line "o.bind(\"XF86LaunchA\", \"$DESCRIPTION\", $toggle)"
       say "Bound the Mission Control key."
     fi
     taken="$(key_taken_by 64 D)"
     if [ -n "$taken" ]; then
       say "SUPER + D is already bound to \"$taken\"; leaving it alone."
     else
-      add_line "o.bind(\"SUPER + D\", \"$DESCRIPTION\", \"$BIN toggle\")"
+      add_line "o.bind(\"SUPER + D\", \"$DESCRIPTION\", $toggle)"
       say "Bound SUPER + D."
     fi
   fi
@@ -221,15 +235,16 @@ configure_hyprland() {
     if swipe_taken up; then
       say "A three-finger swipe up is already set; leaving it alone."
     else
-      add_line "-- Three-finger swipe up opens it, like Mission Control on a Mac."
-      add_line "hl.gesture({ fingers = 3, direction = \"up\", action = function() hl.exec_cmd(\"$BIN show\") end })"
+      add_line "-- Three-finger swipe up opens it, like Mission Control on a Mac. It"
+      add_line "-- opens as the swipe starts; a plain function would wait for the fingers to lift."
+      add_line "hl.gesture({ fingers = 3, direction = \"up\", action = { start = function() $show end } })"
       say "Added a three-finger swipe up to open."
     fi
     if swipe_taken down; then
       say "A three-finger swipe down is already set; leaving it alone."
     else
       add_line "-- Three-finger swipe down closes it (and does nothing when it's closed)."
-      add_line "hl.gesture({ fingers = 3, direction = \"down\", action = function() hl.exec_cmd(\"$BIN hide\") end })"
+      add_line "hl.gesture({ fingers = 3, direction = \"down\", action = { start = function() $hide end } })"
       say "Added a three-finger swipe down to close."
     fi
   fi

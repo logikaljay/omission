@@ -118,6 +118,11 @@ void Backend::setWindow(QQuickWindow *window) {
             if (m_shown && m_openClock.isValid() && m_openClock.elapsed() < 600)
                 m_frameTimes += m_openClock.elapsed();
         }, Qt::DirectConnection);
+        // Where the zoom had got to as each frame was prepared.
+        connect(window, &QQuickWindow::afterAnimating, this, [this] {
+            if (m_shown && m_openClock.isValid() && m_openClock.elapsed() < 600)
+                m_frameProgress += QString("%1:%2").arg(m_openClock.elapsed()).arg(m_window->property("progress").toDouble(), 0, 'f', 2);
+        });
     }
 }
 
@@ -253,8 +258,8 @@ void Backend::show() {
     m_trickle = later;
     if (!hero.isEmpty())
         QMetaObject::invokeMethod(m_capturer, "capture", Qt::QueuedConnection, Q_ARG(QStringList, hero), Q_ARG(bool, false));
-    // Zoom (260 ms) plus a little.
-    m_trickleTimer.start(320);
+    // Zoom (100 ms) plus a little.
+    m_trickleTimer.start(160);
 
     // Whoever was full screen on this workspace gets that back on close.
     m_restoreFullscreen.clear();
@@ -264,12 +269,27 @@ void Backend::show() {
                 if (win.fullscreen)
                     m_restoreFullscreen.insert(win.address, win.fullscreen);
 
+    // Hyprland animates the windows the overview covers: they fade out
+    // beneath it, and one that was full screen shrinks back to its tile, a
+    // new size on every frame for its app to redraw at. All of it is hidden,
+    // and it takes the GPU from the first frames of the zoom, so until the
+    // overview has closed those windows change in one step instead.
+    m_stilled.clear();
+    if (focused)
+        for (int id : {focused->activeWorkspace, focused->specialWorkspace})
+            if (const auto *w = id ? m_state.workspace(id) : nullptr)
+                for (const auto &win : w->windows)
+                    m_stilled += win.address;
+    setAnimated(m_stilled, false);
+
     m_frameTimes.clear();
     if (qEnvironmentVariableIsSet("OMISSION_DEBUG"))
         QTimer::singleShot(650, this, [this] {
             QStringList gaps;
             for (int i = 1; i < m_frameTimes.size(); ++i)
                 gaps += QString::number(m_frameTimes[i] - m_frameTimes[i - 1]);
+            qInfo("omission: zoom at %s", qPrintable(m_frameProgress.join(' ')));
+            m_frameProgress.clear();
             qInfo("omission: first frame at %lld ms, then gaps: %s", m_frameTimes.isEmpty() ? -1 : m_frameTimes.first(),
                   qPrintable(gaps.join(' ')));
         });
@@ -347,8 +367,23 @@ void Backend::finishClose() {
                                  .arg(Hyprland::quote(it.value() == 1 ? "maximized" : "fullscreen"),
                                       Hyprland::quote("address:" + it.key())));
     m_restoreFullscreen.clear();
+    setAnimated(m_stilled, true);
+    m_stilled.clear();
     QMetaObject::invokeMethod(m_capturer, "rest", Qt::QueuedConnection);
     emit shownChanged();
+}
+
+// Turns Hyprland's animations off for these windows, or hands them back to
+// whatever their rules say. One request for all of them; a window that has
+// closed since is skipped.
+void Backend::setAnimated(const QStringList &addresses, bool animated) {
+    if (addresses.isEmpty())
+        return;
+    QString lua;
+    for (const auto &address : addresses)
+        lua += QString("pcall(hl.dispatch, hl.dsp.window.set_prop({ window = %1, prop = \"no_anim\", value = %2 })) ")
+                   .arg(Hyprland::quote("address:" + address), Hyprland::quote(animated ? "unset" : "1"));
+    m_hyprland->eval(lua);
 }
 
 void Backend::focusWindow(const QString &address) {
