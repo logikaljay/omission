@@ -14,8 +14,26 @@ Every choice here comes from measurements on a real Omarchy machine (an M3
 MacBook under Asahi), using `OMISSION_DEBUG=1`.
 
 - **It stays resident.** `omission daemon` starts once with the overview
-  already built. Opening it is one socket write and a Hyprland state refresh
-  of a couple of milliseconds, with no process start and no QML to load.
+  already built. The keys and swipes are Hyprland global shortcuts
+  (`omission:toggle`, `omission:show`, `omission:hide`), so opening it is one
+  Wayland event and a Hyprland state refresh of a couple of milliseconds,
+  with no process start and no QML to load. Running `omission toggle` does
+  the same, about 25 ms later: that's how long a process takes to load Qt
+  before it can pass the word on.
+- **Nothing animates underneath.** Hyprland fades out the windows a
+  full-screen window covers, and shrinks one that was full screen itself
+  back to its tile, which its app redraws at every size on the way. That
+  took the GPU from the first frames of the zoom (frames 50 to 100 ms apart
+  instead of 16). While the overview is open, the windows under it change in
+  one step.
+- **The zoom keeps time.** An ordinary animation advances one display
+  refresh per frame drawn, a frame behind. The first frames after a window
+  appears come late, because the compositor is busy mapping it, so the
+  fastest part of the zoom played in slow motion and its first frames showed
+  no movement. The zoom is now placed by the clock as each frame is about to
+  be drawn. It lasts 100 ms, in or out.
+- **Swipes act as they start.** A gesture bound to a plain function runs when
+  your fingers lift. The swipes are bound to the start of the gesture.
 - **It's a full-screen window, not an overlay.** Under a full-screen layer
   surface, Hyprland redraws every window beneath it on each frame, and on
   this machine that ran at about 30 fps. Under a full-screen window it
@@ -95,7 +113,13 @@ change, the backups go back. omission also adds its own Hyprland window rule
 at runtime (floating, full screen, no animation or border), so uninstalling
 leaves nothing behind.
 
-Commands: `omission [toggle|show|hide|daemon|quit]`.
+Commands: `omission [toggle|show|hide|daemon|quit]`. To bind a key of your
+own, use the global shortcut rather than the command, so no process starts
+on the keypress:
+
+```lua
+hl.bind("SUPER + TAB", hl.dsp.global("omission:toggle"))
+```
 
 ### From source
 
@@ -113,7 +137,7 @@ bin/uninstall --keep-package  # only remove the Hyprland setup
 ```sh
 bin/build            # build/omission
 bin/test             # unit tests, offscreen
-OMISSION_DEBUG=1 build/omission daemon   # traces captures, imports and frame gaps
+OMISSION_DEBUG=1 build/omission daemon   # traces captures, imports, frame gaps and the zoom's progress
 OMISSION_SHM=1 build/omission daemon     # force the shared-memory fallback
 OMISSION_NO_CAPTURE=1 build/omission daemon  # rule captures out when profiling
 ```

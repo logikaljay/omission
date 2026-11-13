@@ -170,7 +170,7 @@ Window {
             return
         }
         heroId = spaceId
-        openAnimation.stop()
+        zooming = false
         closeAnimation.from = progress
         closeAnimation.start()
     }
@@ -215,7 +215,10 @@ Window {
         if (armed || closing)
             return
         armed = true
-        openAnimation.start()
+        zoomClock = Date.now()
+        zoomTime = 0
+        zooming = true
+        requestUpdate()
     }
 
     function cardAt(point) {
@@ -244,7 +247,7 @@ Window {
     Connections {
         target: backend
         function onOpening() {
-            openAnimation.stop()
+            win.zooming = false
             closeAnimation.stop()
             win.closing = false
             win.armed = false
@@ -272,16 +275,35 @@ Window {
         }
     }
 
-    NumberAnimation {
-        id: openAnimation
-        target: win; property: "progress"
-        from: 0; to: 1; duration: 260
-        easing.type: Easing.OutQuint
+    // The zoom follows the clock rather than the frame count. An ordinary
+    // animation moves one display refresh further with every frame it draws,
+    // and each frame shows where it had got to when the frame before was
+    // drawn. The first frames after the window appears come late (the
+    // compositor is busy mapping it), so the fastest part of the zoom would
+    // play in slow motion, a frame behind. Here every frame, as it's about
+    // to be drawn, moves on by the time that really passed, so the first one
+    // already shows the zoom under way. A late frame counts for two
+    // refreshes at most: catching up all at once would skip most of the zoom.
+    property bool zooming: false
+    property double zoomClock: 0
+    property double zoomTime: 0
+    readonly property int zoomDuration: 100
+    onAfterAnimating: {
+        if (!zooming)
+            return
+        const now = Date.now()
+        zoomTime += Math.min(now - zoomClock, 34)
+        zoomClock = now
+        const t = Math.min(1, zoomTime / zoomDuration)
+        progress = 1 - Math.pow(1 - t, 5) // Easing.OutQuint
+        if (t >= 1)
+            zooming = false
     }
+
     NumberAnimation {
         id: closeAnimation
         target: win; property: "progress"
-        to: 0; duration: 200
+        to: 0; duration: 100
         easing.type: Easing.InOutCubic
         onFinished: win.finish()
     }

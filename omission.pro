@@ -12,7 +12,8 @@ WAYLAND_XML = \
     $$WL_PROTOCOLS/staging/ext-foreign-toplevel-list/ext-foreign-toplevel-list-v1.xml \
     $$WL_PROTOCOLS/staging/ext-image-capture-source/ext-image-capture-source-v1.xml \
     $$WL_PROTOCOLS/staging/ext-image-copy-capture/ext-image-copy-capture-v1.xml \
-    $$WL_PROTOCOLS/stable/linux-dmabuf/linux-dmabuf-v1.xml
+    $$WL_PROTOCOLS/stable/linux-dmabuf/linux-dmabuf-v1.xml \
+    protocols/hyprland-global-shortcuts-v1.xml
 
 wl_header.input = WAYLAND_XML
 wl_header.output = ${QMAKE_FILE_BASE}-client.h
@@ -33,6 +34,7 @@ HEADERS += \
     src/downscale.h \
     src/hyprland.h \
     src/model.h \
+    src/shortcuts.h \
     src/theme.h \
     src/thumbnails.h \
     src/translator.h
@@ -44,6 +46,7 @@ SOURCES += \
     src/downscale.cpp \
     src/hyprland.cpp \
     src/model.cpp \
+    src/shortcuts.cpp \
     src/theme.cpp \
     src/thumbnails.cpp \
     src/translator.cpp
